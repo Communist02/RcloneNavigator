@@ -1,0 +1,91 @@
+id: com.mazur.RcloneNavigator
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: rclone_navigator
+
+finish-args:
+  - --socket=x11
+  - --share=ipc
+  - --share=network
+  - --filesystem=home
+  - --filesystem=/tmp
+  - --filesystem=xdg-config/kdeglobals:ro
+  - --talk-name=org.freedesktop.Flatpak
+
+modules:
+  - name: xcb-libs
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/lib
+      - cp -a /usr/lib/x86_64-linux-gnu/libxcb-cursor.so* /app/lib/
+    sources: []
+
+  - name: krb5
+    buildsystem: simple
+    cleanup:
+      - '/include'
+      - '/share'
+      - '/var'
+      - '/bin'
+      - '/sbin'
+      - '/lib/debug'
+      - '/lib/pkgconfig'
+    build-commands:
+      - cd src && autoreconf -i
+      - cd src && ./configure --prefix=/app --disable-static --enable-shared
+      - cd src && make -j$(nproc)
+      - cd src && make install
+    sources:
+      - type: archive
+        url: https://kerberos.org/dist/krb5/1.21/krb5-1.21.3.tar.gz
+        sha256: b7a4cd5ead67fb08b980b21abd150ff7217e85ea320c9ed0c6dadd304840ad35
+
+  - name: rclone
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/bin
+      - cp rclone /app/bin/
+    sources:
+      - type: archive
+        url: https://github.com/rclone/rclone/releases/download/v1.70.2/rclone-v1.70.2-linux-amd64.zip
+        sha256: 7bfa813f426820d20436e48a4e0b9bf21977fcd513a48f2d28eede3136b4bacb
+
+  # - name: python-requirements
+  #   buildsystem: simple
+  #   cleanup:
+  #     - '*'
+  #   build-options:
+  #     build-args:
+  #       - '--share=network'
+  #   build-commands:
+  #     - pip install --no-cache-dir --prefix=/app -r requirements.txt
+  #     - pip install --no-cache-dir --prefix=/app nuitka
+  #     - pip install --no-cache-dir --prefix=/app patchelf
+  #   sources:
+  #     - type: dir
+  #       path: .
+
+  # - name: nuitka
+  #   buildsystem: simple
+  #   build-commands:
+  #     - nuitka --enable-plugin=pyside6 --output-file=rclone_navigator --include-data-dir=app/resources=app/resources --include-data-dir=translations=translations --product-name="Rclone Navigator" --product-version=1 --standalone --output-dir=/app/bin main.py
+  #     - rm -r /app/bin/main.build
+  #     - mv /app/bin/main.dist/* /app/bin
+  #     - rm -r /app/bin/main.dist
+  #   sources:
+  #     - type: dir
+  #       path: .
+
+  - name: main
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/bin
+      - cp -r main.dist/* /app/bin/
+      - mkdir -p /app/share/applications
+      - cp app/resources/com.mazur.RcloneNavigator.desktop /app/share/applications/
+      - mkdir -p /app/share/icons/hicolor/256x256/apps/
+      - cp app/resources/favicon.png /app/share/icons/hicolor/256x256/apps/com.mazur.RcloneNavigator.png
+    sources:
+      - type: dir
+        path: .

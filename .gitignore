@@ -1,0 +1,7 @@
+rclone.exe
+__pycache__
+venv
+main.dist
+main.build
+scripts/output
+winfsp*

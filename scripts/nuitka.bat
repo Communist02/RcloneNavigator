@@ -1,0 +1,2 @@
+cd ../
+"./venv/scripts/python" -m nuitka --standalone --enable-plugin=pyside6 --product-name="Rclone Navigator" --file-description="Rclone Navigator" --copyright="Denis Mazur" --product-version=1 --output-file=rclone_navigator --windows-icon-from-ico=app/resources/favicon.ico --include-data-dir=app/resources=app/resources --include-data-dir=translations=translations --include-data-files=rclone.exe=rclone.exe main.py
