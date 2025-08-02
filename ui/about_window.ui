@@ -23,7 +23,7 @@
       </font>
      </property>
      <property name="text">
-      <string notr="true">Rclone Explorer</string>
+      <string notr="true">Rclone Navigator</string>
      </property>
     </widget>
    </item>
@@ -37,7 +37,7 @@
    <item>
     <widget class="QLabel" name="label_4">
      <property name="text">
-      <string notr="true">&lt;a href=&quot;https://github.com/Communist02/RcloneExplorer&quot;&gt;https://github.com/Communist02/RcloneExplorer&lt;/a&gt;</string>
+      <string notr="true">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;https://github.com/Communist02/RcloneExplorer&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#fb9d8b;&quot;&gt;https://github.com/Communist02/RcloneNavigator&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::RichText</enum>

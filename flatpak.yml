@@ -1,4 +1,4 @@
-id: com.mazur.RcloneNavigator
+id: org.mazur.RcloneNavigator
 runtime: org.freedesktop.Platform
 runtime-version: '24.08'
 sdk: org.freedesktop.Sdk
@@ -48,7 +48,7 @@ modules:
       - cp rclone /app/bin/
     sources:
       - type: archive
-        url: https://github.com/rclone/rclone/releases/download/v1.70.2/rclone-v1.70.2-linux-amd64.zip
+        url: https://github.com/rclone/rclone/releases/download/v1.70.3/rclone-v1.70.3-linux-amd64.zip
         sha256: 7bfa813f426820d20436e48a4e0b9bf21977fcd513a48f2d28eede3136b4bacb
 
   # - name: python-requirements
@@ -83,9 +83,9 @@ modules:
       - mkdir -p /app/bin
       - cp -r main.dist/* /app/bin/
       - mkdir -p /app/share/applications
-      - cp app/resources/com.mazur.RcloneNavigator.desktop /app/share/applications/
+      - cp app/resources/org.mazur.RcloneNavigator.desktop /app/share/applications/
       - mkdir -p /app/share/icons/hicolor/256x256/apps/
-      - cp app/resources/favicon.png /app/share/icons/hicolor/256x256/apps/com.mazur.RcloneNavigator.png
+      - cp app/resources/favicon.png /app/share/icons/hicolor/256x256/apps/org.mazur.RcloneNavigator.png
     sources:
       - type: dir
         path: .

@@ -32,7 +32,7 @@ class Ui_AboutWindow(object):
         font.setPointSize(20)
         font.setBold(True)
         self.label.setFont(font)
-        self.label.setText(u"Rclone Explorer")
+        self.label.setText(u"Rclone Navigator")
 
         self.verticalLayout.addWidget(self.label)
 
@@ -43,7 +43,7 @@ class Ui_AboutWindow(object):
 
         self.label_4 = QLabel(AboutWindow)
         self.label_4.setObjectName(u"label_4")
-        self.label_4.setText(u"<a href=\"https://github.com/Communist02/RcloneExplorer\">https://github.com/Communist02/RcloneExplorer</a>")
+        self.label_4.setText(u"<html><head/><body><p><a href=\"https://github.com/Communist02/RcloneExplorer\"><span style=\" text-decoration: underline; color:#fb9d8b;\">https://github.com/Communist02/RcloneNavigator</span></a></p></body></html>")
         self.label_4.setTextFormat(Qt.TextFormat.RichText)
         self.label_4.setOpenExternalLinks(True)
         self.label_4.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)

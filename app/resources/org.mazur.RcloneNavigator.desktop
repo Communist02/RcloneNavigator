@@ -3,6 +3,6 @@ Name=Rclone Navigator
 Exec=rclone_navigator
 Terminal=false
 Type=Application
-Icon=com.mazur.RcloneNavigator
+Icon=org.mazur.RcloneNavigator
 Categories=Network;
 Keywords=rclone;cloud;drive;disk;explorer;

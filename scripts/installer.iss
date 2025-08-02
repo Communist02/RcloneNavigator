@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Rclone Navigator"
-#define MyAppVersion "1.0"
+#define MyAppVersion "1.0.1"
 #define MyAppPublisher "Denis Mazur"
 #define MyAppURL "https://github.com/Communist02/RcloneNavigator"
 #define MyAppExeName "rclone_navigator_no_console.exe"
