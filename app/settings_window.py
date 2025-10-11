@@ -58,7 +58,7 @@ class SettingsWindow(QDialog):
         self.ui.comboBox_language.setCurrentText(
             self.settings.value('language', 'auto'))
         self.ui.checkBox_tray.setChecked(
-            bool(self.settings.value('minimize_to_tray', False)))
+            str(self.settings.value('minimize_to_tray', False)) in ['true', 'True'])
 
         if os.name != 'nt':
             self.ui.checkBox_autorun.hide()

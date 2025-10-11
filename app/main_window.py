@@ -382,7 +382,7 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event: QCloseEvent):
         settings = QSettings('Rclone Navigator', 'Rclone Navigator')
-        if self.isVisible() and bool(settings.value('minimize_to_tray', False)):
+        if self.isVisible() and str(settings.value('minimize_to_tray', False)) in ['true', 'True']:
             event.ignore()
             self.hide()
         else:
