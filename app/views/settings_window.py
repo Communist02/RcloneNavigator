@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'settings_window.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.3
+## Created by: Qt User Interface Compiler version 6.10.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -17,7 +17,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QAbstractButton, QApplication, QCheckBox, QComboBox,
     QDialog, QDialogButtonBox, QHBoxLayout, QLabel,
-    QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
+    QSizePolicy, QSpacerItem, QSpinBox, QVBoxLayout,
+    QWidget)
 
 class Ui_SettingsWindow(object):
     def setupUi(self, SettingsWindow):
@@ -72,6 +73,22 @@ class Ui_SettingsWindow(object):
 
         self.verticalLayout.addLayout(self.horizontalLayout_2)
 
+        self.horizontalLayout_4 = QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.label_4 = QLabel(SettingsWindow)
+        self.label_4.setObjectName(u"label_4")
+
+        self.horizontalLayout_4.addWidget(self.label_4)
+
+        self.spinBox_depth = QSpinBox(SettingsWindow)
+        self.spinBox_depth.setObjectName(u"spinBox_depth")
+        self.spinBox_depth.setMinimum(1)
+
+        self.horizontalLayout_4.addWidget(self.spinBox_depth)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_4)
+
         self.checkBox_tray = QCheckBox(SettingsWindow)
         self.checkBox_tray.setObjectName(u"checkBox_tray")
 
@@ -106,6 +123,7 @@ class Ui_SettingsWindow(object):
         self.label_3.setText(QCoreApplication.translate("SettingsWindow", u"Language (restart required)", None))
         self.label.setText(QCoreApplication.translate("SettingsWindow", u"Style", None))
         self.label_2.setText(QCoreApplication.translate("SettingsWindow", u"Palette", None))
+        self.label_4.setText(QCoreApplication.translate("SettingsWindow", u"Path depth", None))
         self.checkBox_tray.setText(QCoreApplication.translate("SettingsWindow", u"Minimize to tray instead of closing the application", None))
         self.checkBox_autorun.setText(QCoreApplication.translate("SettingsWindow", u"Launch at user login", None))
     # retranslateUi

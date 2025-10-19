@@ -229,7 +229,7 @@ class NewRemoteWindow(QDialog):
                     checkbox.toggled.connect(
                         lambda value, name=option['Name']: self.remote.__setitem__(name, value))
                     if self.edit_mode and option['Name'] in self.remote:
-                        checkbox.setChecked(bool(self.remote[option['Name']]))
+                        checkbox.setChecked(self.remote[option['Name']].lower() == 'true')
                     else:
                         checkbox.setChecked(option['Default'])
 

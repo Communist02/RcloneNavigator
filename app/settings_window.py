@@ -59,6 +59,7 @@ class SettingsWindow(QDialog):
             self.settings.value('language', 'auto'))
         self.ui.checkBox_tray.setChecked(
             str(self.settings.value('minimize_to_tray', False)) in ['true', 'True'])
+        self.ui.spinBox_depth.setValue(int(self.settings.value('path_depth', 1)))
 
         if os.name != 'nt':
             self.ui.checkBox_autorun.hide()
@@ -132,6 +133,8 @@ class SettingsWindow(QDialog):
             'language', self.ui.comboBox_language.currentText())
         self.settings.setValue(
             'minimize_to_tray', self.ui.checkBox_tray.isChecked())
+        self.settings.setValue(
+            'path_depth', self.ui.spinBox_depth.value())
 
         self.autorun(self.ui.checkBox_autorun.isChecked(), 'Rclone Navigator')
 

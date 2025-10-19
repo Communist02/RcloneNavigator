@@ -10,7 +10,7 @@ from app.palettes import palettes
 from app.main_window import MainWindow
 
 
-def is_already_running(server_name: str):
+def is_already_running(server_name: str) -> bool:
     socket = QLocalSocket()
     socket.connectToServer(server_name)
     if socket.waitForConnected(100):

@@ -180,6 +180,7 @@ class MainWindow(QMainWindow):
     serve: list[Serve] = []
     mount: list[Mount] = []
     processes: list[Process] = []
+    settings = QSettings('Rclone Navigator', 'Rclone Navigator')
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -309,8 +310,11 @@ class MainWindow(QMainWindow):
         self.ui.splitter_mount.setSizes([500, 100])
 
         self.shortcuts()
-        self.update_remotes()
         self.recovery_ui()
+        if rc.rclone == None:
+            QMessageBox.critical(self, self.tr('This program requires the rclone library'), self.tr('System Requirements\nTo function correctly, this application depends on rclone. Please ensure that rclone is installed and configured on your computer before running the program.\n\nInstallation Instructions:\n1) Visit the official rclone website: https://rclone.org/downloads/\n2) Download and install the version for your operating system (Windows, macOS, Linux).'))
+            self.close()
+        self.update_remotes()
         QTimer.singleShot(1, self.recovery_mount)
         QTimer.singleShot(1, self.recovery_serve)
 
@@ -558,12 +562,14 @@ class MainWindow(QMainWindow):
                     if total >= 1024:
                         total = round(float(total) / 1024, 2)
                         index_total += 1
-                total_text = self.tr('Total') + f': {total} {sizes[index_total]}'
+                total_text = self.tr('Total') + \
+                    f': {total} {sizes[index_total]}'
             else:
                 total_text = ''
 
             if total_text != '':
-                self.layout_free_size.setText(f'{total_text} | {free_text}    ')
+                self.layout_free_size.setText(
+                    f'{total_text} | {free_text}    ')
             else:
                 self.layout_free_size.setText(f'{free_text}    ')
 
@@ -760,14 +766,41 @@ class MainWindow(QMainWindow):
         if os.name == 'nt':
             subprocess.Popen('start rclone config', shell=True)
         else:
-            try:
-                subprocess.Popen('gnome-terminal -- rclone config', shell=True)
-            except FileNotFoundError:
-                try:
-                    subprocess.Popen('xterm -e rclone config', shell=True)
-                except FileNotFoundError:
-                    print("Unsupported platform")
-                    sys.exit(1)
+            terminal_commands = {
+                'gnome-terminal': ['gnome-terminal', '--', 'rclone', 'config'],
+                'konsole': ['konsole', '-e', 'rclone', 'config'],
+                'xterm': ['xterm', '-e', 'rclone', 'config'],
+                'terminator': ['terminator', '-e', 'rclone config'],
+                'xfce4-terminal': ['xfce4-terminal', '-x', 'rclone', 'config'],
+                'lxterminal': ['lxterminal', '-e', 'rclone', 'config'],
+                'mate-terminal': ['mate-terminal', '-x', 'rclone', 'config'],
+                'tilix': ['tilix', '-e', 'rclone', 'config'],
+                'kitty': ['kitty', 'rclone', 'config'],
+                'alacritty': ['alacritty', '-e', 'rclone', 'config'],
+                'urxvt': ['urxvt', '-e', 'rclone', 'config'],
+                'termite': ['termite', '-e', 'rclone config'],
+                'st': ['st', '-e', 'rclone', 'config'],
+                'roxterm': ['roxterm', '-e', 'rclone config'],
+                'sakura': ['sakura', '-e', 'rclone config'],
+                'eterm': ['eterm', '-e', 'rclone config'],
+                'deepin-terminal': ['deepin-terminal', '-e', 'rclone config'],
+                'qterminal': ['qterminal', '-e', 'rclone config'],
+                'terminology': ['terminology', '-e', 'rclone config'],
+                'guake': ['guake', '-e', 'rclone config'],
+                'tilda': ['tilda', '-e', 'rclone config'],
+                'yakuake': ['yakuake', '-e', 'rclone config']
+            }
+
+            for term, cmd in terminal_commands.items():
+                if shutil.which(term):
+                    try:
+                        subprocess.Popen(cmd)
+                        print(f'Launched in: {term}')
+                        break
+                    except:
+                        continue
+                else:
+                    print(f'{term} not found')
 
     def update_remotes(self):
         remotes = rc.listremotes(True)
@@ -974,9 +1007,15 @@ class MainWindow(QMainWindow):
         if update:
             self.ui.statusbar.showMessage(
                 self.tr('Updating') + ' ' + remote_name + path_dir)
+            depth = 1
         else:
             self.ui.statusbar.showMessage(
                 self.tr('Opening') + ' ' + remote_name + path_dir)
+            depth = int(self.settings.value('path_depth', 1))
+            
+        if not update:
+            depth = int(self.settings.value('path_depth', 1))
+        
         while True:
             if remote_name in self.cache and path_dir in self.cache[remote_name] and not update:
                 tree = self.cache[remote_name][path_dir]
@@ -987,24 +1026,27 @@ class MainWindow(QMainWindow):
                 if not update:
                     self.ui.treeWidget_files.clear()
                 update = False
-                process = rc.lsjson(f'{remote_name}{path_dir}')
+                process = rc.lsjson(f'{remote_name}{path_dir}', depth)
                 self.processes.append(Process(process, remote_name + path_dir))
                 loop = asyncio.get_running_loop()
-                tree, error = await loop.run_in_executor(None, process.communicate)
-                tree = json.loads(tree)
+                tree_rclone, error = await loop.run_in_executor(None, process.communicate)
+                tree_rclone = json.loads(tree_rclone)
                 if error:
                     print(error.decode())
                 self.ui.statusbar.showMessage('')
 
-                for i in range(len(tree)):
+                tree = []
+                directories = {}
+                for i in range(len(tree_rclone)):
                     sizes = [self.tr('B'), self.tr('KB'), self.tr(
                         'MB'), self.tr('GB'), self.tr('TB')]
                     index = 0
-                    size = tree[i]['Size']
-                    name = tree[i]['Name']
-                    modified = tree[i]['ModTime']
-                    is_dir = tree[i]['IsDir']
-                    type = tree[i]['MimeType']
+                    size = tree_rclone[i]['Size']
+                    name = tree_rclone[i]['Name']
+                    modified = tree_rclone[i]['ModTime']
+                    is_dir = tree_rclone[i]['IsDir']
+                    type_file = tree_rclone[i]['MimeType']
+                    path = tree_rclone[i]['Path']
 
                     if is_dir:
                         size = ''
@@ -1015,15 +1057,31 @@ class MainWindow(QMainWindow):
                                 index += 1
                         size = f'{size} {sizes[index]}'
 
+                    is_depth_1 = len(path.split('/')) == 1
                     if path_dir != '' and path_dir[-1] != '/':
-                        path = path_dir + '/' + tree[i]['Path']
+                        path = path_dir + '/' + tree_rclone[i]['Path']
                     else:
-                        path = path_dir + tree[i]['Path']
+                        path = path_dir + tree_rclone[i]['Path']
+                    if is_depth_1:
+                        modified = modified.replace(
+                            'T', ' ').replace('Z', ' ').split('.')[0]
+                        tree.append({'name': name, 'size': size, 'modified': modified,
+                                    'path': path, 'is_dir': is_dir, 'type': type_file})
+                    else:
+                        path_directory = path[:path.rindex('/')]
+                        if path_directory in directories:
+                            directories[path_directory].append({'name': name, 'size': size, 'modified': modified,
+                                                                'path': path, 'is_dir': is_dir, 'type': type_file})
+                        else:
+                            directories[path_directory] = [{'name': name, 'size': size, 'modified': modified,
+                                                            'path': path, 'is_dir': is_dir, 'type': type_file}]
 
-                    modified = modified.replace(
-                        'T', ' ').replace('Z', ' ').split('.')[0]
-                    tree[i] = {'name': name, 'size': size, 'modified': modified,
-                               'path': path, 'is_dir': is_dir, 'type': type}
+                for path, tree_path in directories.items():
+                    if remote_name in self.cache:
+                        self.cache[remote_name][path] = tree_path
+                    else:
+                        self.cache[remote_name] = {path: tree_path}
+
                 if remote_name in self.cache:
                     self.cache[remote_name][path_dir] = tree
                 else:
@@ -1243,13 +1301,15 @@ class MainWindow(QMainWindow):
                 if type == 'mount':
                     scrollbar = self.ui.plainTextEdit_mount.verticalScrollBar()
                     is_bottom = scrollbar.value() == scrollbar.maximum()
-                    self.ui.plainTextEdit_mount.appendPlainText(output.decode().strip())
+                    self.ui.plainTextEdit_mount.appendPlainText(
+                        output.decode().strip())
                     if is_bottom:
                         scrollbar.setValue(scrollbar.maximum())
                 elif type == 'serve':
                     scrollbar = self.ui.plainTextEdit_serve.verticalScrollBar()
                     is_bottom = scrollbar.value() == scrollbar.maximum()
-                    self.ui.plainTextEdit_serve.appendPlainText(output.decode().strip())
+                    self.ui.plainTextEdit_serve.appendPlainText(
+                        output.decode().strip())
                     if is_bottom:
                         scrollbar.setValue(scrollbar.maximum())
                 if 'CRITICAL' in output.decode():
