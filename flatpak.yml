@@ -1,11 +1,12 @@
-id: org.mazur.RcloneNavigator
+id: io.github.communist02.RcloneNavigator
 runtime: org.freedesktop.Platform
-runtime-version: '24.08'
+runtime-version: '25.08'
 sdk: org.freedesktop.Sdk
 command: rclone_navigator
 
 finish-args:
-  - --socket=x11
+  - --socket=fallback-x11
+  - --socket=wayland
   - --share=ipc
   - --share=network
   - --filesystem=home
@@ -38,8 +39,8 @@ modules:
       - cd src && make install
     sources:
       - type: archive
-        url: https://kerberos.org/dist/krb5/1.21/krb5-1.21.3.tar.gz
-        sha256: b7a4cd5ead67fb08b980b21abd150ff7217e85ea320c9ed0c6dadd304840ad35
+        url: https://kerberos.org/dist/krb5/1.22/krb5-1.22.1.tar.gz
+        sha256: 1a8832b8cad923ebbf1394f67e2efcf41e3a49f460285a66e35adec8fa0053af
 
   - name: rclone
     buildsystem: simple
@@ -48,8 +49,8 @@ modules:
       - cp rclone /app/bin/
     sources:
       - type: archive
-        url: https://github.com/rclone/rclone/releases/download/v1.70.3/rclone-v1.70.3-linux-amd64.zip
-        sha256: 7bfa813f426820d20436e48a4e0b9bf21977fcd513a48f2d28eede3136b4bacb
+        url: https://github.com/rclone/rclone/releases/download/v1.72.0/rclone-v1.72.0-linux-amd64.zip
+        sha256: f3757aa829828c0f3359301bea25eef4d4fd62de735c47546ee6866c5b5545e2
 
   # - name: python-requirements
   #   buildsystem: simple
@@ -83,9 +84,11 @@ modules:
       - mkdir -p /app/bin
       - cp -r main.dist/* /app/bin/
       - mkdir -p /app/share/applications
-      - cp app/resources/org.mazur.RcloneNavigator.desktop /app/share/applications/
+      - cp flatpak/io.github.communist02.RcloneNavigator.desktop /app/share/applications/
       - mkdir -p /app/share/icons/hicolor/256x256/apps/
-      - cp app/resources/favicon.png /app/share/icons/hicolor/256x256/apps/org.mazur.RcloneNavigator.png
+      - cp flatpak/io.github.communist02.RcloneNavigator.png /app/share/icons/hicolor/256x256/apps/
+      - mkdir -p /app/share/metainfo/
+      - cp flatpak/io.github.communist02.RcloneNavigator.metainfo.xml /app/share/metainfo/
     sources:
       - type: dir
         path: .

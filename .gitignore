@@ -5,3 +5,5 @@ main.dist
 main.build
 scripts/output
 winfsp*
+dev-repo
+*.flatpak

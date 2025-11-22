@@ -254,6 +254,8 @@ class MainWindow(QMainWindow):
             self.ui.toolButton_mount_point.hide()
         else:
             self.ui.toolButton_mount_point.clicked.connect(self.mount_point)
+            if os.getenv('container'):
+                self.ui.action_config_rclone.setVisible(False)
 
         self.ui.treeWidget_files.startDrag = self.start_drag
         self.ui.treeWidget_search.startDrag = self.start_drag
