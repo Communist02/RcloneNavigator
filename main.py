@@ -21,7 +21,7 @@ def is_already_running(server_name: str) -> bool:
     return False
 
 
-def start_server(window: MainWindow, server_name: str):
+def start_server(window: MainWindow, server_name: str) -> None:
     server = QLocalServer()
     try:
         server.removeServer(server_name)
@@ -44,8 +44,8 @@ if __name__ == '__main__':
     app = QApplication()
     app.setQuitOnLastWindowClosed(False)
     settings = QSettings('Rclone Navigator', 'Rclone Navigator')
-    app.setStyle(settings.value('style', ''))
-    palette = settings.value('palette', 'System')
+    app.setStyle(str(settings.value('style', '')))
+    palette = str(settings.value('palette', 'System'))
     if palette not in palettes.keys():
         if app.styleHints().colorScheme() == Qt.ColorScheme.Light:
             palette += ' Light'
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     translator = QTranslator()
 
     translations_dir = os.path.join(os.path.dirname(__file__), 'translations')
-    lang_code = settings.value('language', 'auto')
+    lang_code = str(settings.value('language', 'auto'))
     if lang_code == 'auto':
         lang_code = QLocale.system().name()
     if qt_translator.load(f'qtbase_{lang_code}.qm', translations_dir):

@@ -7,12 +7,12 @@ from app.views import new_serve_window
 
 
 class NewServeWindow(QDialog):
-    def __init__(self, parent=None, protocol: str = '', path: str = '', user: str = '', password: str = '', address: str = '', read_only: bool = False, args: str = ''):
+    def __init__(self, parent: main_window.MainWindow, protocol: str = '', path: str = '', user: str = '', password: str = '', address: str = '', read_only: bool = False, args: str = ''):
         super(NewServeWindow, self).__init__()
         self.ui = new_serve_window.Ui_NewServeWindow()
         self.ui.setupUi(self)
 
-        self.parent: main_window.MainWindow = parent
+        self.parent_widget = parent
 
         self.setWindowIcon(
             QIcon(os.path.dirname(__file__) + '/resources/' + 'favicon.ico'))
@@ -91,7 +91,9 @@ class NewServeWindow(QDialog):
             protocol = 's3'
             if address.strip() == '':
                 address = 'http://127.0.0.1:8080'
+        else:
+            protocol = 'ftp'
 
-        self.parent.create_serve(protocol, path, user,
+        self.parent_widget.create_serve(protocol, path, user,
                                  password, address, read_only, args=args)
         self.accept()

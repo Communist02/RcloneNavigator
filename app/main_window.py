@@ -47,12 +47,12 @@ class FileMonitorHandler(FileSystemEventHandler):
 class Task(QMainWindow):
     last_index = 0
 
-    def __init__(self, operation: str, source: str = '', destination: str = '', process: subprocess.Popen = None):
+    def __init__(self, operation: str, source: str = '', destination: str = '', process: subprocess.Popen | None = None):
         self.operation = operation
         self.source = source
         self.destination = destination
         self.status = 'Running'
-        self.size = ''
+        self.file_size = ''
         self.full_size = 0
         self.progress = 0
         self.speed = ''
@@ -66,7 +66,9 @@ class Task(QMainWindow):
             case _:
                 self.index = -1
 
-    def stop(self):
+    def stop(self) -> None:
+        if not self.process:
+            return
         if os.name == 'nt':
             self.process.send_signal(signal.CTRL_BREAK_EVENT)
         else:
@@ -81,7 +83,7 @@ class Task(QMainWindow):
     def error(self):
         self.status = 'Error'
 
-    def set_full_size(self, size: float):
+    def set_full_size(self, size: float) -> None:
         self.full_size = size
 
     def set_size(self, size: float):
@@ -97,16 +99,16 @@ class Task(QMainWindow):
                 index += 1
 
         if full_size > 0:
-            self.size = f'{size} / {full_size} {sizes[index]}'
+            self.file_size = f'{size} / {full_size} {sizes[index]}'
         else:
-            self.size = f'{size} {sizes[index]}'
+            self.file_size = f'{size} {sizes[index]}'
 
         if full_size != 0:
             self.progress = round((size / full_size) * 100)
         else:
             self.progress = 0
 
-    def set_speed(self, speed: float):
+    def set_speed(self, speed: float) -> None:
         sizes = [self.tr('B/s'), self.tr('KB/s'), self.tr('MB/s'),
                  self.tr('GB/s'), self.tr('TB/s')]
         index = 0
@@ -118,12 +120,12 @@ class Task(QMainWindow):
 
         self.speed = f'{round(speed, 2)} {sizes[index]}'
 
-    def set_estimated(self, estimated: str):
+    def set_estimated(self, estimated: str) -> None:
         self.estimated = estimated
 
 
 class Serve():
-    def __init__(self, protocol: str, path: str, address: str, user: str, password: str, read_only: bool, args: str, process: subprocess.Popen = None):
+    def __init__(self, protocol: str, path: str, address: str, user: str, password: str, read_only: bool, args: str, process: subprocess.Popen | None = None) -> None:
         self.protocol = protocol
         self.path = path
         self.address = address
@@ -133,7 +135,9 @@ class Serve():
         self.process = process
         self.args = args
 
-    def stop(self):
+    def stop(self) -> None:
+        if not self.process:
+            return
         if os.name == 'nt':
             self.process.send_signal(signal.CTRL_BREAK_EVENT)
         else:
@@ -141,11 +145,11 @@ class Serve():
 
 
 class Process():
-    def __init__(self, process: subprocess.Popen, data=None):
+    def __init__(self, process: subprocess.Popen, data=None) -> None:
         self.process = process
         self.data = data
 
-    def stop(self):
+    def stop(self) -> None:
         if os.name == 'nt':
             self.process.send_signal(signal.CTRL_BREAK_EVENT)
         else:
@@ -153,12 +157,14 @@ class Process():
 
 
 class Mount():
-    def __init__(self, remote: str, mount_point: str, process: subprocess.Popen = None):
+    def __init__(self, remote: str, mount_point: str, process: subprocess.Popen | None = None):
         self.remote = remote
         self.mount_point = mount_point
         self.process = process
 
-    def stop(self):
+    def stop(self) -> None:
+        if not self.process:
+            return
         if os.name == 'nt':
             self.process.send_signal(signal.CTRL_BREAK_EVENT)
         else:
@@ -314,7 +320,8 @@ class MainWindow(QMainWindow):
         self.shortcuts()
         self.recovery_ui()
         if rc.rclone == None:
-            QMessageBox.critical(self, self.tr('This program requires the rclone library'), self.tr('System Requirements\nTo function correctly, this application depends on rclone. Please ensure that rclone is installed and configured on your computer before running the program.\n\nInstallation Instructions:\n1) Visit the official rclone website: https://rclone.org/downloads/\n2) Download and install the version for your operating system (Windows, macOS, Linux).'))
+            QMessageBox.critical(self, self.tr('This program requires the rclone library'), self.tr(
+                'System Requirements\nTo function correctly, this application depends on rclone. Please ensure that rclone is installed and configured on your computer before running the program.\n\nInstallation Instructions:\n1) Visit the official rclone website: https://rclone.org/downloads/\n2) Download and install the version for your operating system (Windows, macOS, Linux).'))
             self.close()
         self.update_remotes()
         QTimer.singleShot(1, self.recovery_mount)
@@ -380,7 +387,7 @@ class MainWindow(QMainWindow):
                 case _:
                     item.setText(3, self.tasks[i].status)
 
-            item.setText(4, self.tasks[i].size)
+            item.setText(4, self.tasks[i].file_size)
             self.ui.treeWidget_tasks.setItemWidget(
                 item, 5, QProgressBar(value=self.tasks[i].progress))
             item.setText(6, self.tasks[i].speed)
@@ -474,7 +481,7 @@ class MainWindow(QMainWindow):
 
         loop = asyncio.get_running_loop()
 
-        while True:
+        while process.stdout is not None:
             line = await loop.run_in_executor(None, process.stdout.readline)
             if not line or search_process_is_running != self.search_process_is_running:
                 break
@@ -606,7 +613,7 @@ class MainWindow(QMainWindow):
 
     def recovery_ui(self):
         settings = QSettings('Rclone Navigator', 'Rclone Navigator')
-        index = int(settings.value('scale', 2))
+        index = int(str(settings.value('scale', 2)))
         self.set_scale(index)
         self.slider_scale.setValue(index)
 
@@ -625,6 +632,7 @@ class MainWindow(QMainWindow):
                     source_path, destination_remote, destination_path))
 
     def start_drag(self, supportedActions):
+        items = None
         match self.ui.tabWidget.currentIndex():
             case 0:
                 items = self.ui.treeWidget_files.selectedItems()
@@ -692,7 +700,7 @@ class MainWindow(QMainWindow):
             i = pixmap_size
 
         drag.setPixmap(pixmap)
-        drag.setHotSpot(QPoint(i / 2, -9))
+        drag.setHotSpot(QPoint(int(i / 2), -9))
         drag.exec(Qt.DropAction.CopyAction)
 
     def start_input_path(self):
@@ -814,7 +822,7 @@ class MainWindow(QMainWindow):
         for remote in remotes:
             item = QTreeWidgetItem([remote['name'] + ':', remote['type']])
             item.setSizeHint(0, QSize(0, 32))
-            if (QApplication.styleHints().colorScheme() == Qt.ColorScheme.Light and (len(settings.value('palette', 'System')) > 4 and (settings.value('palette', 'System')[-4:].lower() != 'dark'))) or QApplication.style().name() == 'windowsvista' or (len(settings.value('palette', 'System')) > 5 and (settings.value('palette', 'System')[-5:].lower() == 'light')):
+            if (QApplication.styleHints().colorScheme() == Qt.ColorScheme.Light and (len(str(settings.value('palette', 'System'))) > 4 and (str(settings.value('palette', 'System'))[-4:].lower() != 'dark'))) or QApplication.style().name() == 'windowsvista' or (len(str(settings.value('palette', 'System'))) > 5 and (str(settings.value('palette', 'System'))[-5:].lower() == 'light')):
                 inv = ''
             else:
                 inv = '_inv'
@@ -855,7 +863,7 @@ class MainWindow(QMainWindow):
     async def copy(self, task: Task):
         loop = asyncio.get_running_loop()
 
-        while True:
+        while task.process is not None and task.process.stdout is not None:
             line = await loop.run_in_executor(None, task.process.stdout.readline)
             if not line:
                 break
@@ -912,7 +920,7 @@ class MainWindow(QMainWindow):
                 if full_size != 0 and current_size == full_size:
                     break
 
-        out, error = task.process.communicate()
+        out, error = task.process.communicate() if task.process else (b'', b'')
         if not error:
             task.done()
         elif error.decode() != '^C':
@@ -920,7 +928,7 @@ class MainWindow(QMainWindow):
             self.error_output(
                 self.tr('An error occurred when copying a file or directory'), error.decode())
 
-    def error_output(self, message: str, error: str = None):
+    def error_output(self, message: str, error: str | None = None):
         msg_box = QMessageBox(self)
         msg_box.setIcon(QMessageBox.Critical)
         msg_box.setWindowTitle(self.tr('Error'))
@@ -930,7 +938,7 @@ class MainWindow(QMainWindow):
         msg_box.setStandardButtons(QMessageBox.Ok)
         msg_box.show()
 
-    def notice_output(self, message: str, text: str = None):
+    def notice_output(self, message: str, text: str | None = None):
         msg_box = QMessageBox(self)
         msg_box.setIcon(QMessageBox.Information)
         msg_box.setWindowTitle(self.tr('Notice'))
@@ -1013,11 +1021,11 @@ class MainWindow(QMainWindow):
         else:
             self.ui.statusbar.showMessage(
                 self.tr('Opening') + ' ' + remote_name + path_dir)
-            depth = int(self.settings.value('path_depth', 1))
-            
+            depth = int(str(self.settings.value('path_depth', 1)))
+
         if not update:
-            depth = int(self.settings.value('path_depth', 1))
-        
+            depth = int(str(self.settings.value('path_depth', 1)))
+
         while True:
             if remote_name in self.cache and path_dir in self.cache[remote_name] and not update:
                 tree = self.cache[remote_name][path_dir]
@@ -1162,7 +1170,7 @@ class MainWindow(QMainWindow):
                 asyncio.ensure_future(self.open_file(
                     remote, file_path, file_name, is_with))
 
-    def download_file(self, list_files: list[dict], download_path: str = None):
+    def download_file(self, list_files: list[dict], download_path: str | None = None):
         if download_path is None:
             download_path = QFileDialog.getExistingDirectory()
         if download_path is not None and download_path != '':
@@ -1294,7 +1302,7 @@ class MainWindow(QMainWindow):
 
     async def check_process(self, process: subprocess.Popen, type: str, text: str = '', is_stderr: bool = True):
         loop = asyncio.get_running_loop()
-        while True:
+        while process.stderr is not None and process.stdout is not None:
             if is_stderr:
                 output = await loop.run_in_executor(None, process.stderr.readline)
             else:
@@ -1319,7 +1327,7 @@ class MainWindow(QMainWindow):
             if process.poll() is not None:
                 break
 
-    def copy_file(self, files: dict):
+    def copy_file(self, files: list[dict]):
         self.copy_files = []
         for file in files:
             self.copy_files.append(file)
@@ -1381,7 +1389,7 @@ class MainWindow(QMainWindow):
                     else:
                         task.error()
                         self.error_output(
-                            self.tr('An error occurred when deleting a file or directory'), error)
+                            self.tr('An error occurred when deleting a file or directory'), str(error))
                 if current_remote == self.current_remote:
                     await self.update_free_size(current_remote)
 
@@ -1512,6 +1520,14 @@ class MainWindow(QMainWindow):
             if len(selected) > 0:
                 self.copy_file(selected_files)
 
+        def copy_search():
+            selected = self.ui.treeWidget_search.selectedItems()
+            selected_files = []
+            for item in selected:
+                selected_files.append(item.data(0, Qt.ItemDataRole.UserRole))
+            if len(selected) > 0:
+                self.copy_file(selected_files)
+
         self.delete_shortcut = QShortcut(
             QKeySequence("Del"), self.ui.treeWidget_files)
         self.delete_shortcut.activated.connect(delete)
@@ -1522,12 +1538,11 @@ class MainWindow(QMainWindow):
 
         self.copy_shortcut = QShortcut(
             QKeySequence("Ctrl+C"), self.ui.treeWidget_files)
-        self.copy_shortcut.activated.connect(
-            lambda: self.copy_files(self.ui.treeWidget_files.selectedItems()))
+        self.copy_shortcut.activated.connect(copy)
 
         self.copy_shortcut = QShortcut(
             QKeySequence("Ctrl+C"), self.ui.treeWidget_search)
-        self.copy_shortcut.activated.connect(copy)
+        self.copy_shortcut.activated.connect(copy_search)
 
         self.paste_shortcut = QShortcut(
             QKeySequence("Ctrl+V"), self.ui.treeWidget_files)
@@ -1751,7 +1766,7 @@ class MainWindow(QMainWindow):
         action = QAction(self)
         action.setText(self.tr('Copy'))
         action.setIcon(QIcon.fromTheme('edit-copy'))
-        action.triggered.connect(lambda: self.copy_files(selected))
+        action.triggered.connect(lambda: self.copy_file(selected_files))
         action.setShortcut(QKeySequence('Ctrl+C'))
         menu.addAction(action)
 

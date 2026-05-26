@@ -27,7 +27,7 @@ class SettingsWindow(QDialog):
             styles[i] = styles[i].lower()
         self.ui.comboBox_style.addItems(styles)
         self.ui.comboBox_style.setCurrentText(
-            self.settings.value('style', self.style().name()))
+            str(self.settings.value('style', self.style().name())))
 
         palettes_list: list = list(palettes.keys())
         # if self.ui.comboBox_style.currentText() != 'fusion' and self.ui.comboBox_style.currentText() != 'windows':
@@ -54,12 +54,13 @@ class SettingsWindow(QDialog):
 
         self.ui.comboBox_palette.addItems(unique_list)
         self.ui.comboBox_palette.setCurrentText(
-            self.settings.value('palette', 'System'))
+            str(self.settings.value('palette', 'System')))
         self.ui.comboBox_language.setCurrentText(
-            self.settings.value('language', 'auto'))
+            str(self.settings.value('language', 'auto')))
         self.ui.checkBox_tray.setChecked(
             str(self.settings.value('minimize_to_tray', False)) in ['true', 'True'])
-        self.ui.spinBox_depth.setValue(int(self.settings.value('path_depth', 1)))
+        self.ui.spinBox_depth.setValue(
+            int(str(self.settings.value('path_depth', 1))))
 
         if os.name != 'nt':
             self.ui.checkBox_autorun.hide()

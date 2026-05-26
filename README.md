@@ -1,18 +1,16 @@
-Rclone Navigator
-==============
+# Rclone Navigator
+
 The program for managing files in cloud storage.
-
 Modification for [rclone](https://rclone.org/) command line tool with GUI.
-
 Supports Linux and Windows.
 
-Table of contents
--------------------
+## Table of contents
+
 * [Features](#features)
 * [Sample screenshots](#sample-screenshots)
 
-Features
---------
+## Features
+
 * Allows to browse and modify any rclone remote, including encrypted ones
 * Uses same configuration file as rclone, no extra configuration required
 * Lists files hierarchically with file name, size and modify date
@@ -27,8 +25,8 @@ Features
 * Supports creating servers for your remotes, if you don't have one
 * Multiple themes for all platforms
 
-Sample screenshots
--------------------
+## Sample screenshots
+
 **Explorer**
 <img src="docs/screenshot1.jpg" width="100%" />
 

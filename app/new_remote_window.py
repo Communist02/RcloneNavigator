@@ -31,7 +31,7 @@ class Upstream(QWidget):
 
 
 class NewRemoteWindow(QDialog):
-    def __init__(self, edit_mode: bool = False, remote_name: str = None):
+    def __init__(self, edit_mode: bool = False, remote_name: str = ''):
         super(NewRemoteWindow, self).__init__()
         self.ui = new_remote_window.Ui_NewRemoteWindow()
         self.ui.setupUi(self)
@@ -239,7 +239,7 @@ class NewRemoteWindow(QDialog):
         if not self.ui.groupBox_advanced.isChecked():
             toggle_content(False)
 
-    def new_remote(self, remote_name_delete: str = None):
+    def new_remote(self, remote_name_delete: str | None = None):
         name = self.ui.lineEdit_name.text().strip()
         rc = Rclone()
 
