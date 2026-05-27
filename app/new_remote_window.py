@@ -72,7 +72,7 @@ class NewRemoteWindow(QDialog):
             self.ui.listWidget_advanced.setSortingEnabled(False)
 
         for provider in self.providers:
-            item = QListWidgetItem(f'{provider['Description']}')
+            item = QListWidgetItem(f"{provider['Description']}")
             item.setToolTip(provider['Name'])
             self.ui.listWidget_advanced.addItem(item)
             if edit_mode and remote_type == provider['Name']:
@@ -179,9 +179,9 @@ class NewRemoteWindow(QDialog):
                 layout.addWidget(label_help)
 
             match option['Type']:
-                case 'string' | 'SpaceSepList':
+                case 'string' | 'SpaceSepList' | 'CommaSepList':
                     if not option.get('Examples', False):
-                        if option['Type'] == 'SpaceSepList' and option['Default'] is not None:
+                        if (option['Type'] == 'SpaceSepList' or option['Type'] == 'CommaSepList') and option['Default'] is not None:
                             s = ''
                             for string in option['Default']:
                                 s += f'{string} '
@@ -205,7 +205,7 @@ class NewRemoteWindow(QDialog):
                         if self.edit_mode and option['Name'] in self.remote:
                             widget.setCurrentText(self.remote[option['Name']])
                         else:
-                            if option['Type'] == 'SpaceSepList':
+                            if option['Type'] == 'SpaceSepList' or option['Type'] == 'CommaSepList':
                                 s = ''
                                 for string in option['Default']:
                                     s += f'"{string}" '

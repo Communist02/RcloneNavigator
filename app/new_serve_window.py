@@ -1,13 +1,11 @@
 import os
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QDialog, QFileDialog
-
-import app.main_window as main_window
 from app.views import new_serve_window
 
 
 class NewServeWindow(QDialog):
-    def __init__(self, parent: main_window.MainWindow, protocol: str = '', path: str = '', user: str = '', password: str = '', address: str = '', read_only: bool = False, args: str = ''):
+    def __init__(self, parent, protocol: str = '', path: str = '', user: str = '', password: str = '', address: str = '', read_only: bool = False, args: str = ''):
         super(NewServeWindow, self).__init__()
         self.ui = new_serve_window.Ui_NewServeWindow()
         self.ui.setupUi(self)

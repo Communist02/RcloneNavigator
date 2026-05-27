@@ -162,10 +162,10 @@ class Rclone(CheckRclone):
     def mount(self, remote: str, mount_point: str = '', arg: str = '') -> subprocess.Popen[bytes]:
         return self.sync_process('mount', f'"{remote}"', f'"{mount_point}"', arg, communicate=False)
 
-    def providers(self) -> dict[str, Any]:
+    def providers(self) -> list[dict[str, Any]]:
         return self.sync_process('config providers')
 
-    def create_remote(self, remote_name, remote_type, args='', **kwargs):
+    def create_remote(self, remote_name, remote_type, args='', **kwargs) -> dict[str, Any]:
         for key, value in kwargs.items():
             match value:
                 case str():
@@ -191,13 +191,13 @@ class Rclone(CheckRclone):
                 args += f' --auth-key {username},{password}'
         return self.sync_process('serve', protocol, f'"{path}"', args, communicate=False)
 
-    async def execute(self, command):
+    async def execute(self, command) -> str | dict[str, Any]:
         return await self.async_process(subcommand=command, _execute=True)
 
-    async def deletefile(self, path: str):
+    async def deletefile(self, path: str) -> str:
         return await self.async_process('deletefile', f'"{path}"')
 
-    async def purge(self, path: str):
+    async def purge(self, path: str) -> str:
         return await self.async_process('purge', f'"{path}"')
 
     async def moveto(self, source_path: str, destination_path: str):
